@@ -21,6 +21,7 @@ from __future__ import annotations
 import logging
 from typing import Any, Dict, List, Optional
 
+# pyrefly: ignore [missing-import]
 from supabase import AsyncClient, create_async_client
 
 from backend.config import SUPABASE_SERVICE_KEY, SUPABASE_URL

@@ -13,6 +13,7 @@ import os
 import tempfile
 from typing import AsyncGenerator
 
+# pyrefly: ignore [missing-import]
 import httpx
 
 from backend.hunter.media_item import MediaItem

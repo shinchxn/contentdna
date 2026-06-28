@@ -28,9 +28,13 @@ from __future__ import annotations
 import logging
 from typing import Optional
 
+# pyrefly: ignore [missing-import]
 import cv2
+# pyrefly: ignore [missing-import]
 import numpy as np
+# pyrefly: ignore [missing-import]
 from imwatermark import WatermarkDecoder, WatermarkEncoder
+# pyrefly: ignore [missing-import]
 from PIL import Image
 
 logger = logging.getLogger(__name__)

@@ -9,8 +9,11 @@ from __future__ import annotations
 
 import logging
 
+# pyrefly: ignore [missing-import]
 from fastapi import APIRouter, HTTPException
+# pyrefly: ignore [missing-import]
 from fastapi.responses import JSONResponse
+# pyrefly: ignore [missing-import]
 from pydantic import BaseModel
 
 from backend.config import HUNTER_MAX_DEPTH, HUNTER_MAX_PAGES

@@ -35,7 +35,9 @@ import time
 from dataclasses import dataclass, field
 from typing import List, Optional
 
+# pyrefly: ignore [missing-import]
 import httpx
+# pyrefly: ignore [missing-import]
 from PIL import Image
 
 from backend.config import MATCH_THRESHOLD
@@ -147,6 +149,7 @@ async def detect_from_file(
             # Note: faiss_score is already the cosine similarity (inner product
             # of two unit vectors), so we build a mock call to compute_score
             # that leverages it directly.
+            # pyrefly: ignore [missing-import]
             import numpy as np
             # Construct a synthetic second vector whose dot with clip_vector
             # equals faiss_score to cleanly pass through compute_score.
