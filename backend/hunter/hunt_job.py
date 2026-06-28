@@ -9,22 +9,12 @@ import asyncio
 import logging
 from datetime import datetime, timezone
 
-from celery import Celery
+# pyrefly: ignore [missing-import]
+from celery import shared_task
 from backend.config import REDIS_URL
 from backend.hunter.url_classifier import URLType, classify_url
 
 logger = logging.getLogger(__name__)
-
-celery_app = Celery("contentdna", broker=REDIS_URL, backend=REDIS_URL)
-celery_app.conf.update(
-    task_serializer="json",
-    result_serializer="json",
-    accept_content=["json"],
-    timezone="UTC",
-    enable_utc=True,
-    worker_prefetch_multiplier=1,
-    task_acks_late=True,
-)
 
 
 async def _process_item(item, owner_id: str, platform: str) -> tuple[int, int]:
@@ -39,6 +29,7 @@ async def _process_item(item, owner_id: str, platform: str) -> tuple[int, int]:
         with open(item.path, "rb") as f:
             file_bytes = f.read()
     elif item.url:
+        # pyrefly: ignore [missing-import]
         import httpx
         try:
             async with httpx.AsyncClient(timeout=20, follow_redirects=True) as client:
@@ -160,7 +151,7 @@ async def _run_hunt(job_id: str, seed_url: str, owner_id: str,
         })
 
 
-@celery_app.task(name="hunt_job.run_hunt", bind=True, max_retries=0)
+@shared_task(name="hunt_job.run_hunt", bind=True, max_retries=0)
 def run_hunt(self, job_id: str, seed_url: str, owner_id: str,
              max_depth: int = 3, max_pages: int = 100):
     """

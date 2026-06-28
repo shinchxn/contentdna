@@ -116,7 +116,7 @@ async def extract_media_scrapy(url: str, max_depth: int = 3, max_pages: int = 10
         results=results,
     )
 
-    future = asyncio.get_event_loop().create_future()
+    future = asyncio.get_running_loop().create_future()
     deferred.addCallback(lambda _: future.set_result(None))
     deferred.addErrback(lambda f: future.set_exception(Exception(str(f.value))))
 

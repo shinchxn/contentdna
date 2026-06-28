@@ -233,6 +233,15 @@ async def get_stats(owner_id: str) -> Dict[str, Any]:
         .execute()
     )
 
+    active_jobs_resp = (
+        await client.table("hunt_jobs")
+        .select("id", count="exact")
+        .eq("owner_id", owner_id)
+        .eq("status", "running")
+        .execute()
+    )
+    active_hunt_jobs = active_jobs_resp.count or 0
+
     return {
         "total_assets": total_assets,
         "total_alerts": total_alerts,
@@ -240,6 +249,7 @@ async def get_stats(owner_id: str) -> Dict[str, Any]:
         "alerts_by_severity": alerts_by_severity,
         "alerts_by_source": alerts_by_source,
         "recent_alerts": recent_resp.data or [],
+        "active_hunt_jobs": active_hunt_jobs,
     }
 
 

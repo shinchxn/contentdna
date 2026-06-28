@@ -29,7 +29,7 @@ def classify_url(url: str) -> URLType:
     u = url.lower()
     if any(d in u for d in YOUTUBE_DOMAINS):      return URLType.YOUTUBE
     if any(u.endswith(e) for e in LIVE_EXT):       return URLType.LIVE
-    if "twitch.tv" in u or "youtube.com/live" in u or "live" in u: return URLType.LIVE
+    if "twitch.tv" in u or "youtube.com/live" in u: return URLType.LIVE
     if any(d in u for d in SOCIAL_DOMAINS):        return URLType.SOCIAL
     if any(u.split("?")[0].endswith(e) for e in DIRECT_EXT): return URLType.DIRECT
     return URLType.STATIC

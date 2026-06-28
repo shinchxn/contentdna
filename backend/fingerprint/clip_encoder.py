@@ -15,8 +15,8 @@ _model, _processor = None, None
 def load_model():
     global _model, _processor
     if _model is None:
-        _model = CLIPModel.from_pretrained("openai/clip-vit-large-patch14")
-        _processor = CLIPProcessor.from_pretrained("openai/clip-vit-large-patch14")
+        _model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32")
+        _processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
         _model.eval()
         if torch.cuda.is_available():
             _model = _model.cuda()

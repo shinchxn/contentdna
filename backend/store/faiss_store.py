@@ -44,7 +44,7 @@ _map_path: str = FAISS_INDEX_PATH.replace(".bin", "_map.json")
 
 # ── Internal helpers ─────────────────────────────────────────────────────────
 
-def _load_or_create() -> None:
+def _load() -> None:
     """Load existing index from disk, or create a fresh one."""
     global _index, _id_map
 
@@ -91,7 +91,7 @@ async def add_asset(clip_vector: np.ndarray, asset_id: str) -> int:
     """
     async with _lock:
         if _index is None:
-            _load_or_create()
+            _load()
 
         vec = clip_vector.reshape(1, 512).astype(np.float32)
         _index.add(vec)                     # type: ignore[union-attr]
@@ -124,7 +124,7 @@ async def search(
     """
     async with _lock:
         if _index is None:
-            _load_or_create()
+            _load()
 
         if _index.ntotal == 0:              # type: ignore[union-attr]
             return []
@@ -156,4 +156,4 @@ def index_size() -> int:
 
 
 # ── Warm up on module import ─────────────────────────────────────────────────
-_load_or_create()
+_load()
