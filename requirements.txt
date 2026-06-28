@@ -1,0 +1,42 @@
+# Web Framework
+fastapi
+uvicorn[standard]
+pydantic
+python-multipart
+websockets
+aiofiles
+python-dotenv
+
+# Database
+supabase
+
+# AI / Fingerprint
+torch
+transformers
+imagehash
+Pillow
+opencv-python
+ffmpeg-python
+invisible-watermark
+numpy
+
+# Vector Search
+faiss-cpu
+
+# Hunter — Web Crawling
+scrapy
+playwright
+yt-dlp
+gallery-dl
+streamlink
+httpx
+
+# Task Queue
+celery[redis]
+redis
+
+# Platform Crawlers
+instagrapi
+praw
+google-api-python-client
+googlesearch-python

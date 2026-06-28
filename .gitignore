@@ -1,0 +1,38 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.env
+venv/
+.venv/
+*.egg-info/
+
+# Data / FAISS (large binary files)
+data/faiss_index.bin
+data/faiss_index_map.json
+
+# Temp media (downloaded for fingerprinting, deleted after)
+tmp/
+temp/
+
+# Node / Frontend
+node_modules/
+dist/
+.next/
+build/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Instagram session
+*.session
+*.json.bak
+
+# Project clones (each person clones these locally — never commit)
+project/
+
+# Secrets
+*.key
+*.pem
+.env.local
