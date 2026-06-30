@@ -5,7 +5,7 @@ import api from "../lib/api";
 import { supabase } from "../lib/supabase";
 import { Globe, Loader2, Sliders } from "lucide-react";
 
-const OWNER_ID = "demo-owner-id";
+const OWNER_ID = "d3b07384-d113-4ec5-a55d-229202020202";
 
 export default function Hunt() {
   const [url, setUrl]           = useState("");

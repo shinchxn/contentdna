@@ -4,7 +4,7 @@ import api from "../lib/api";
 import { supabase } from "../lib/supabase";
 import { Filter, RefreshCw, Bell } from "lucide-react";
 
-const OWNER_ID = "demo-owner-id";
+const OWNER_ID = "d3b07384-d113-4ec5-a55d-229202020202";
 const PLATFORMS  = ["instagram", "youtube", "tiktok", "reddit", "web", "live"];
 const SEVERITIES = ["CRITICAL", "HIGH", "MEDIUM"];
 
