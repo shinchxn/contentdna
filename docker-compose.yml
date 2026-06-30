@@ -1,16 +1,25 @@
 version: "3.9"
 
 services:
+  # ── Redis — message broker and result backend ────────────────────────────────
   redis:
     image: redis:7-alpine
+    restart: unless-stopped
     ports:
       - "6379:6379"
     volumes:
       - redis_data:/data
-    restart: unless-stopped
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
+  # ── FastAPI backend ──────────────────────────────────────────────────────────
   api:
     build: .
+    restart: unless-stopped
     command: uvicorn backend.main:app --host 0.0.0.0 --port 8000 --reload
     ports:
       - "8000:8000"
@@ -19,39 +28,47 @@ services:
       - ./data:/app/data
     env_file: .env
     depends_on:
-      - redis
-    restart: unless-stopped
+      redis:
+        condition: service_healthy
 
+  # ── Celery worker (4 concurrent processes) ───────────────────────────────────
   worker:
     build: .
-    command: celery -A backend.crawlers.worker worker -c 4 --loglevel=info
+    restart: unless-stopped
+    command: celery -A backend.crawlers.worker worker --concurrency=4 --loglevel=info
     volumes:
       - .:/app
       - ./data:/app/data
     env_file: .env
     depends_on:
-      - redis
-    restart: unless-stopped
+      redis:
+        condition: service_healthy
+      api:
+        condition: service_started
 
+  # ── Celery beat scheduler ────────────────────────────────────────────────────
   beat:
     build: .
+    restart: unless-stopped
     command: celery -A backend.crawlers.worker beat --loglevel=info
     volumes:
       - .:/app
     env_file: .env
     depends_on:
-      - redis
-    restart: unless-stopped
+      redis:
+        condition: service_healthy
 
+  # ── Flower — Celery monitoring dashboard ─────────────────────────────────────
   flower:
     build: .
-    command: celery -A backend.crawlers.worker flower --port=5555
+    restart: unless-stopped
+    command: celery -A backend.crawlers.worker flower --port=5555 --broker="${REDIS_URL}"
     ports:
       - "5555:5555"
     env_file: .env
     depends_on:
-      - redis
-    restart: unless-stopped
+      redis:
+        condition: service_healthy
 
 volumes:
   redis_data:

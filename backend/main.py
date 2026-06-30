@@ -11,7 +11,7 @@ import logging
 from backend.fingerprint.clip_encoder import load_model
 from backend.store.faiss_store import _load as load_faiss
 from backend.store.supabase_client import get_client
-from backend.routers import upload, detect, check_url, hunt, alerts, assets, stats
+from backend.routers import upload, detect, check_url, hunt, alerts, assets, stats, discover
 
 logging.basicConfig(
     level=logging.INFO,
@@ -45,6 +45,7 @@ app.include_router(hunt.router)
 app.include_router(alerts.router)
 app.include_router(assets.router)
 app.include_router(stats.router)
+app.include_router(discover.router)
 
 
 @app.get("/health", tags=["system"])

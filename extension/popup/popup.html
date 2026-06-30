@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ContentDNA</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      width: 340px;
+      min-height: 200px;
+      background: #0F172A;
+      color: white;
+      font-family: -apple-system, 'Inter', BlinkMacSystemFont, sans-serif;
+      font-size: 13px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Header */
+    .header {
+      padding: 14px 16px 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      background: rgba(30,41,59,0.6);
+    }
+    .logo-icon {
+      width: 30px; height: 30px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #3B82F6 0%, #10B981 100%);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px;
+      box-shadow: 0 0 10px rgba(59,130,246,0.4);
+    }
+    .logo-text {
+      font-weight: 700; font-size: 15px;
+      background: linear-gradient(135deg, #60A5FA, #34D399);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .live-dot {
+      margin-left: auto;
+      display: flex; align-items: center; gap: 5px;
+      font-size: 11px; color: rgba(255,255,255,0.35);
+    }
+    .dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: #10B981;
+      box-shadow: 0 0 6px #10B981;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+    /* Content */
+    .content { padding: 14px 16px; }
+
+    /* Section labels */
+    .section-label {
+      font-size: 10px; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.08em;
+      color: rgba(255,255,255,0.35);
+      margin-bottom: 8px;
+    }
+
+    /* Buttons */
+    button {
+      width: 100%; padding: 9px 14px;
+      border-radius: 10px; border: none;
+      font-size: 12px; font-weight: 600;
+      cursor: pointer; margin-bottom: 6px;
+      display: flex; align-items: center; justify-content: center;
+      gap: 7px;
+      transition: all 0.15s ease;
+    }
+    button:hover { transform: translateY(-1px); }
+    button:active { transform: translateY(0); }
+    button:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%);
+      color: white;
+      box-shadow: 0 3px 12px rgba(59,130,246,0.35);
+    }
+    .btn-secondary {
+      background: rgba(30,41,59,0.9);
+      color: rgba(255,255,255,0.8);
+      border: 1px solid rgba(255,255,255,0.12) !important;
+    }
+    .btn-secondary:hover { background: rgba(51,65,85,0.9); }
+    .btn-accent {
+      background: linear-gradient(135deg, #059669 0%, #10B981 100%);
+      color: white;
+      box-shadow: 0 3px 12px rgba(16,185,129,0.25);
+    }
+
+    /* Divider */
+    .divider {
+      border: none; border-top: 1px solid rgba(255,255,255,0.07);
+      margin: 12px 0;
+    }
+
+    /* Input */
+    input[type="text"], input[type="url"] {
+      width: 100%; padding: 8px 12px;
+      background: rgba(15,23,42,0.8);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 10px; color: white;
+      font-size: 12px; margin-bottom: 6px;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    input[type="text"]:focus, input[type="url"]:focus {
+      border-color: rgba(59,130,246,0.5);
+    }
+    input::placeholder { color: rgba(255,255,255,0.25); }
+
+    /* Status box */
+    .status {
+      font-size: 12px;
+      padding: 10px 12px;
+      background: rgba(30,41,59,0.7);
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.07);
+      min-height: 44px;
+      display: flex; align-items: center;
+      color: rgba(255,255,255,0.5);
+      line-height: 1.4;
+      margin-top: 8px;
+      transition: all 0.2s ease;
+    }
+    .status.success {
+      color: #34D399;
+      background: rgba(16,185,129,0.08);
+      border-color: rgba(16,185,129,0.2);
+    }
+    .status.error {
+      color: #FCA5A5;
+      background: rgba(239,68,68,0.08);
+      border-color: rgba(239,68,68,0.2);
+    }
+    .status.loading {
+      color: #93C5FD;
+      background: rgba(59,130,246,0.06);
+      border-color: rgba(59,130,246,0.15);
+    }
+
+    /* Settings panel */
+    .settings-toggle {
+      font-size: 11px;
+      color: rgba(255,255,255,0.35);
+      background: none; border: none;
+      cursor: pointer; width: auto;
+      padding: 0; margin: 0;
+      display: inline-flex; align-items: center; gap: 4px;
+      transition: color 0.15s;
+    }
+    .settings-toggle:hover { color: rgba(255,255,255,0.6); transform: none; }
+
+    .settings-panel {
+      margin-top: 10px;
+      padding: 12px;
+      background: rgba(15,23,42,0.6);
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.07);
+      space-y: 8px;
+    }
+    .settings-panel label {
+      display: block;
+      font-size: 10px;
+      color: rgba(255,255,255,0.35);
+      margin-bottom: 4px;
+      margin-top: 8px;
+    }
+    .settings-panel label:first-child { margin-top: 0; }
+
+    .btn-save {
+      margin-top: 10px;
+      background: rgba(59,130,246,0.15);
+      color: #60A5FA;
+      border: 1px solid rgba(59,130,246,0.25) !important;
+      font-size: 11px;
+      padding: 7px;
+    }
+    .btn-save:hover { background: rgba(59,130,246,0.25); }
+
+    /* Current page display */
+    .current-page {
+      font-size: 11px;
+      color: rgba(255,255,255,0.3);
+      padding: 6px 10px;
+      background: rgba(255,255,255,0.04);
+      border-radius: 8px;
+      margin-bottom: 10px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <div class="header">
+    <div class="logo-icon">🧬</div>
+    <span class="logo-text">ContentDNA</span>
+    <div class="live-dot">
+      <span class="dot"></span>
+      Live
+    </div>
+  </div>
+
+  <!-- Main content -->
+  <div class="content">
+
+    <!-- Current page indicator -->
+    <div class="current-page" id="currentPage">Loading current page…</div>
+
+    <!-- Quick scan buttons -->
+    <div class="section-label">Quick Actions</div>
+    <button class="btn-primary" id="scanPage">
+      🔍 Scan This Page
+    </button>
+    <button class="btn-secondary" id="deepScan">
+      🌐 Deep Scan Domain
+    </button>
+
+    <hr class="divider" />
+
+    <!-- Manual URL scan -->
+    <div class="section-label">Scan Specific URL</div>
+    <input
+      type="url"
+      id="urlInput"
+      placeholder="https://example.com/video.mp4"
+    />
+    <button class="btn-accent" id="scanUrl">
+      🎯 Scan This URL
+    </button>
+
+    <!-- Status -->
+    <div class="status" id="status">Ready to scan.</div>
+
+    <hr class="divider" />
+
+    <!-- Settings toggle -->
+    <button class="settings-toggle" id="settingsToggle">
+      ⚙ Settings
+    </button>
+
+    <div class="settings-panel" id="settingsPanel" style="display:none">
+      <label>API Base URL</label>
+      <input type="text" id="apiUrl" placeholder="http://localhost:8000" />
+      <label>Your Owner ID</label>
+      <input type="text" id="ownerId" placeholder="demo-owner-id" />
+      <button class="btn-save" id="saveSettings">Save Settings ✓</button>
+    </div>
+
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
