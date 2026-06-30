@@ -29,6 +29,7 @@ def encode_image(pil_image: Image.Image) -> np.ndarray:
         inputs = {k: v.cuda() for k, v in inputs.items()}
     with torch.no_grad():
         features = _model.get_image_features(**inputs)
+        print(type(features))
     vec = features.squeeze().cpu().numpy().astype(np.float32)
     norm = np.linalg.norm(vec)
     return vec / norm if norm > 0 else vec
