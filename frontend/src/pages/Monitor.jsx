@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import api from "../lib/api";
 import { RefreshCw, Activity, Clock } from "lucide-react";
 
-const OWNER_ID = "demo-owner-id";
+const OWNER_ID = "1c13b877-829b-4f5b-9b0f-058b24dc5c4d";
 
 const PLATFORMS = [
   {

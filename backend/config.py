@@ -21,3 +21,5 @@ REDDIT_USER_AGENT     = os.getenv("REDDIT_USER_AGENT", "contentdna/1.0")
 
 INSTAGRAM_USERNAME    = os.getenv("INSTAGRAM_USERNAME")
 INSTAGRAM_PASSWORD    = os.getenv("INSTAGRAM_PASSWORD")
+GOOGLE_CSE_API_KEY    = os.getenv("GOOGLE_CSE_API_KEY")
+GOOGLE_CSE_ID         = os.getenv("GOOGLE_CSE_ID")

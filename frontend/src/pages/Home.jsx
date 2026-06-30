@@ -7,7 +7,7 @@ import AlertCard from "../components/AlertCard";
 import api from "../lib/api";
 import { TrendingUp, Shield, AlertTriangle, Activity, RefreshCw } from "lucide-react";
 
-const OWNER_ID = "demo-owner-id";
+const OWNER_ID = "1c13b877-829b-4f5b-9b0f-058b24dc5c4d";
 
 const PLATFORM_COLORS = {
   instagram: "#EC4899",
