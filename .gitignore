@@ -12,3 +12,4 @@ temp/
 project/
 .DS_Store
 *.session
+celerybeat-schedule

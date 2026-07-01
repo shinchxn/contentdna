@@ -2,16 +2,14 @@
 backend/hunter/hunt_job.py
 
 Source: project/reference/crawler/ → concept: URL queue + processing loop
-Modified: replaced old crawler with new extractor routing, made Celery task,
-          updates hunt_jobs table at each step.
+Modified: replaced old crawler with new extractor routing.
+          Celery task entry point lives in backend/crawlers/worker.py.
+          This module exposes only the plain async _run_hunt() function.
 """
 import asyncio
 import logging
 from datetime import datetime, timezone
 
-# pyrefly: ignore [missing-import]
-from celery import shared_task
-from backend.config import REDIS_URL
 from backend.hunter.url_classifier import URLType, classify_url
 
 logger = logging.getLogger(__name__)
@@ -151,12 +149,4 @@ async def _run_hunt(job_id: str, seed_url: str, owner_id: str,
         })
 
 
-@shared_task(name="hunt_job.run_hunt", bind=True, max_retries=0)
-def run_hunt(self, job_id: str, seed_url: str, owner_id: str,
-             max_depth: int = 3, max_pages: int = 100):
-    """
-    Celery task. Runs the async hunt pipeline via asyncio.run().
-    Source concept: project/reference/crawler/ — URL queue + processing loop
-    Modified: extractor routing + Celery wrapping.
-    """
-    asyncio.run(_run_hunt(job_id, seed_url, owner_id, max_depth, max_pages))
+

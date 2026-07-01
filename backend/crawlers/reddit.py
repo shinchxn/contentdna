@@ -101,7 +101,7 @@ async def crawl_reddit(owner_id: str = None):
                             page_url=f"https://reddit.com{post.permalink}",
                             source_type="crawler",
                         )
-                        if result and result.get("matched"):
+                        if result and result.matched:
                             total_matched += 1
                     except Exception as e:
                         logger.debug("Detection error for %s: %s", url, e)
@@ -113,3 +113,50 @@ async def crawl_reddit(owner_id: str = None):
         "[Reddit] Crawl complete — %d media found, %d matches",
         total_found, total_matched,
     )
+    return {"found": total_found, "matched": total_matched}
+
+
+async def check_reddit_account(handle: str, owner_id: str, limit: int = 25) -> dict:
+    """
+    Fetch a specific redditor's recent submissions and run detection on each.
+
+    Parameters
+    ----------
+    handle   : Reddit username (without u/ prefix)
+    owner_id : UUID of the owner requesting the check
+    limit    : Max number of submissions to scan (server-side cap: 50)
+
+    Returns
+    -------
+    dict with keys: found, matched — or an extra 'error' key on failure.
+    """
+    from backend.detection.engine import detect_from_url
+
+    limit = min(limit, 50)  # server-side cap
+
+    try:
+        reddit = _get_reddit_client()
+    except (RuntimeError, ValueError) as e:
+        return {"error": str(e), "found": 0, "matched": 0}
+
+    found = matched = 0
+    try:
+        redditor = reddit.redditor(handle)
+        for post in redditor.submissions.new(limit=limit):
+            for url in _extract_media_from_post(post):
+                found += 1
+                try:
+                    result = await detect_from_url(
+                        url=url,
+                        platform="reddit",
+                        page_url=f"https://reddit.com{post.permalink}",
+                        source_type="manual_account_check",
+                    )
+                    if result.matched:
+                        matched += 1
+                except Exception as e:
+                    logger.debug("Detection error for %s: %s", url, e)
+    except Exception as e:
+        return {"error": str(e), "found": found, "matched": matched}
+
+    return {"found": found, "matched": matched}

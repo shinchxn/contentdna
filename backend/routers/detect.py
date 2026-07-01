@@ -93,7 +93,7 @@ async def detect_media(
             file_bytes=file_bytes,
             media_type=media_type,
             source_type="manual",
-            platform="manual",
+            platform="web",
         )
     except Exception as exc:
         logger.error("Detection failed: %s", exc, exc_info=True)

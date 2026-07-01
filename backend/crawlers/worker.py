@@ -108,8 +108,8 @@ def run_hunt_task(
     Dispatched by POST /hunt in backend/routers/hunt.py.
     """
     try:
-        from backend.hunter.hunt_job import run_hunt
-        asyncio.run(run_hunt(job_id, seed_url, owner_id, max_depth, max_pages))
+        from backend.hunter.hunt_job import _run_hunt
+        asyncio.run(_run_hunt(job_id, seed_url, owner_id, max_depth, max_pages))
     except Exception as exc:
         logger.error("Hunt job %s failed: %s", job_id, exc)
         raise self.retry(exc=exc)

@@ -100,7 +100,7 @@ async def crawl_youtube(keywords: list[str] = None):
                     page_url=video_url,
                     source_type="crawler",
                 )
-                if result and result.get("matched"):
+                if result and result.matched:
                     total_matched += 1
             except Exception as e:
                 logger.debug("Detection error for %s: %s", thumb_url, e)
@@ -111,6 +111,77 @@ async def crawl_youtube(keywords: list[str] = None):
         "[YouTube] Crawl complete — %d thumbnails scanned, %d matches",
         total_found, total_matched,
     )
+    return {"found": total_found, "matched": total_matched}
+
+
+async def check_youtube_account(handle: str, owner_id: str, limit: int = 25) -> dict:
+    """
+    Fetch a specific YouTube channel's recent uploads and run detection
+    on their thumbnails.
+    """
+    from backend.detection.engine import detect_from_url
+    
+    limit = min(limit, 50)  # server-side cap
+    
+    try:
+        yt = _get_youtube_client()
+    except (RuntimeError, ValueError) as e:
+        return {"error": str(e), "found": 0, "matched": 0}
+
+    found = matched = 0
+    try:
+        # Resolve handle to channel ID
+        channel_id = None
+        try:
+            resp = yt.channels().list(part="id", forHandle=handle).execute()
+            items = resp.get("items", [])
+            if items:
+                channel_id = items[0]["id"]
+        except Exception:
+            pass
+            
+        if not channel_id:
+            search_resp = yt.search().list(
+                part="snippet", q=handle, type="channel", maxResults=1
+            ).execute()
+            items = search_resp.get("items", [])
+            if items:
+                channel_id = items[0]["snippet"]["channelId"]
+                
+        if not channel_id:
+            return {"error": f"Could not resolve channel for handle '{handle}'", "found": 0, "matched": 0}
+
+        search_resp = yt.search().list(
+            part="snippet", channelId=channel_id, type="video",
+            order="date", maxResults=limit,
+        ).execute()
+
+        for item in search_resp.get("items", []):
+            video_id = item["id"]["videoId"]
+            thumbs = item.get("snippet", {}).get("thumbnails", {})
+            thumb_url = (
+                thumbs.get("high", {}).get("url") or
+                thumbs.get("medium", {}).get("url") or
+                thumbs.get("default", {}).get("url")
+            )
+            if not thumb_url:
+                continue
+                
+            found += 1
+            try:
+                result = await detect_from_url(
+                    url=thumb_url, platform="youtube",
+                    page_url=f"https://www.youtube.com/watch?v={video_id}",
+                    source_type="manual_account_check",
+                )
+                if result.matched:
+                    matched += 1
+            except Exception as e:
+                logger.debug("Detection error for %s: %s", thumb_url, e)
+    except Exception as e:
+        return {"error": str(e), "found": found, "matched": matched}
+
+    return {"found": found, "matched": matched}
 
 
 async def download_video_preview(video_url: str) -> str | None:

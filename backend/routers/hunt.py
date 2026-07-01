@@ -1,8 +1,9 @@
 """
 backend/routers/hunt.py
 ─────────────────────────
-POST /hunt         — Start a new background hunt job
-GET  /hunt/status/{job_id} — Poll job status
+POST /hunt                   — Start a new background hunt job
+GET  /hunt/status/{job_id}   — Poll job status
+POST /hunt/{platform}        — Manually trigger a specific platform crawl
 """
 
 from __future__ import annotations
@@ -60,8 +61,8 @@ async def start_hunt(body: HuntRequest):
 
     # Enqueue the Celery task
     try:
-        from backend.hunter.hunt_job import run_hunt
-        run_hunt.delay(job_id, body.url, body.owner_id, body.max_depth, body.max_pages)
+        from backend.crawlers.worker import run_hunt_task
+        run_hunt_task.delay(job_id, body.url, body.owner_id, body.max_depth, body.max_pages)
     except Exception as exc:
         logger.error("Failed to enqueue hunt task: %s", exc)
         # Update job to failed so UI isn't stuck
@@ -85,3 +86,42 @@ async def get_hunt_status(job_id: str):
     if not job:
         raise HTTPException(status_code=404, detail=f"Hunt job {job_id} not found")
     return JSONResponse(job)
+
+
+# ── Per-platform manual trigger ────────────────────────────────────────────────
+# Declared AFTER /hunt/status/{job_id} so FastAPI matches in correct order.
+# /hunt/{platform} is one path segment (e.g. /hunt/reddit),
+# /hunt/status/{job_id} is two segments — no collision, but keep ordering clean.
+
+_PLATFORM_TASKS = {}  # populated lazily to avoid heavy imports at startup
+
+
+def _get_platform_task(platform: str):
+    if not _PLATFORM_TASKS:
+        from backend.crawlers.worker import (
+            crawl_reddit_task,
+            crawl_youtube_task,
+            crawl_instagram_task,
+            crawl_tiktok_task,
+        )
+        _PLATFORM_TASKS.update({
+            "reddit":    crawl_reddit_task,
+            "youtube":   crawl_youtube_task,
+            "instagram": crawl_instagram_task,
+            "tiktok":    crawl_tiktok_task,
+        })
+    return _PLATFORM_TASKS.get(platform)
+
+
+@router.post("/hunt/{platform}")
+async def trigger_platform_crawl(platform: str):
+    """
+    Manually trigger an immediate crawl for a specific platform.
+    Used by the Monitor page "Trigger Now" button.
+    """
+    task = _get_platform_task(platform)
+    if not task:
+        raise HTTPException(status_code=404, detail=f"Unknown platform: {platform}")
+    async_result = task.delay()
+    logger.info("Platform crawl triggered: platform=%s task_id=%s", platform, async_result.id)
+    return JSONResponse({"platform": platform, "task_id": async_result.id, "status": "triggered"})

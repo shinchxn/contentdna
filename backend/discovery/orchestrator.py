@@ -62,14 +62,25 @@ async def discover_and_hunt(asset: dict) -> dict:
     all_urls = list(set(hashtag_urls + dork_combined_urls + reverse_urls))
 
     if run_hunt_task:
+        from backend.store.supabase_client import insert_hunt_job
+        import asyncio as _asyncio
         for url in all_urls:
             try:
+                # Insert a real job row so _run_hunt has a valid ID to update
+                job = _asyncio.get_event_loop().run_until_complete(
+                    insert_hunt_job({
+                        "owner_id": owner_id,
+                        "seed_url": url,
+                        "status":   "pending",
+                    })
+                )
+                job_id = job["id"]
                 run_hunt_task.delay(
-                    job_id=None,
-                    seed_url=url,
-                    owner_id=owner_id,
-                    max_depth=1,
-                    max_pages=5,
+                    job_id,
+                    url,
+                    owner_id,
+                    1,
+                    5,
                 )
             except Exception as e:
                 logger.error("Failed to dispatch hunt task for %s: %s", url, e)

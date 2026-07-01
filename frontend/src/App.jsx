@@ -6,6 +6,7 @@ import Detect from "./pages/Detect";
 import Hunt from "./pages/Hunt";
 import Monitor from "./pages/Monitor";
 import Alerts from "./pages/Alerts";
+import Accounts from "./pages/Accounts";
 
 export default function App() {
   return (
@@ -21,6 +22,7 @@ export default function App() {
             <Route path="/upload"  element={<Upload />}  />
             <Route path="/detect"  element={<Detect />}  />
             <Route path="/hunt"    element={<Hunt />}    />
+            <Route path="/accounts" element={<Accounts />} />
             <Route path="/monitor" element={<Monitor />} />
             <Route path="/alerts"  element={<Alerts />}  />
           </Routes>

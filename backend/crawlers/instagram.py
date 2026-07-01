@@ -124,7 +124,7 @@ async def crawl_instagram(hashtags: list[str] = None, posts_per_tag: int = 20):
                     page_url=page_url,
                     source_type="crawler",
                 )
-                if result and result.get("matched"):
+                if result and result.matched:
                     total_matched += 1
             except Exception as e:
                 logger.debug("Detection error for %s: %s", media_url, e)
@@ -135,3 +135,51 @@ async def crawl_instagram(hashtags: list[str] = None, posts_per_tag: int = 20):
         "[Instagram] Crawl complete — %d media found, %d matches",
         total_found, total_matched,
     )
+    return {"found": total_found, "matched": total_matched}
+
+
+async def check_instagram_account(handle: str, owner_id: str, limit: int = 20) -> dict:
+    """
+    Fetch a specific Instagram account's recent media and run detection.
+    """
+    from backend.detection.engine import detect_from_url
+
+    limit = min(limit, 50)  # server-side cap
+
+    try:
+        cl = _get_instagram_client()
+    except (RuntimeError, ValueError) as e:
+        return {"error": str(e), "found": 0, "matched": 0}
+
+    found = matched = 0
+    try:
+        user_id = cl.user_id_from_username(handle)
+        medias = cl.user_medias(user_id, amount=limit)
+        for media in medias:
+            media_url = None
+            if media.media_type == 1:
+                media_url = str(media.thumbnail_url or media.thumbnail_url)
+            elif media.media_type == 2:
+                media_url = str(media.video_url)
+            elif media.media_type == 8 and media.resources:
+                first = media.resources[0]
+                media_url = str(first.thumbnail_url or first.video_url or "")
+            if not media_url:
+                continue
+            
+            found += 1
+            try:
+                result = await detect_from_url(
+                    url=media_url, platform="instagram",
+                    page_url=f"https://www.instagram.com/p/{media.code}/",
+                    source_type="manual_account_check",
+                )
+                if result.matched:
+                    matched += 1
+            except Exception as e:
+                logger.debug("Detection error for %s: %s", media_url, e)
+            await asyncio.sleep(1)  # lighter rate limit than full sweep
+    except Exception as e:
+        return {"error": str(e), "found": found, "matched": matched}
+
+    return {"found": found, "matched": matched}

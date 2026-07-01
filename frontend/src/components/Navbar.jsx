@@ -6,6 +6,7 @@ const links = [
   { to: "/upload",  label: "Register" },
   { to: "/detect",  label: "Detect" },
   { to: "/hunt",    label: "Hunt" },
+  { to: "/accounts",label: "Accounts" },
   { to: "/monitor", label: "Monitor" },
   { to: "/alerts",  label: "Alerts" },
 ];

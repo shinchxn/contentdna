@@ -23,7 +23,7 @@ export default function Alerts() {
       if (platform) params.append("platform", platform);
       if (severity) params.append("severity", severity);
       const res = await api.get(`/alerts?${params}`);
-      setAlerts(res.data);
+      setAlerts(res.data.alerts || []);
     } catch {
       // silently fail — alerts list stays at last known state
     } finally {

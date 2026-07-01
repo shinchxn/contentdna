@@ -70,17 +70,27 @@ async def insert_asset(data: Dict[str, Any]) -> Dict[str, Any]:
 
 
 async def get_asset(asset_id: str) -> Optional[Dict[str, Any]]:
-    """Fetch a single asset by UUID. Returns None if not found."""
+    """Fetch a single asset by UUID. Returns None if not found or invalid UUID."""
+    import uuid
+    try:
+        uuid.UUID(str(asset_id))
+    except ValueError:
+        logger.warning("Invalid UUID format: %s", asset_id)
+        return None
+
     client = await get_async_client()
-    response = (
-        await client.table("assets")
-        .select("*")
-        .eq("id", asset_id)
-        .limit(1)
-        .execute()
-    )
-    if response.data:
-        return response.data[0]
+    try:
+        response = (
+            await client.table("assets")
+            .select("*")
+            .eq("id", asset_id)
+            .limit(1)
+            .execute()
+        )
+        if response.data:
+            return response.data[0]
+    except Exception as exc:
+        logger.error("Failed to query asset %s: %s", asset_id, exc)
     return None
 
 
@@ -271,7 +281,7 @@ async def upload_file(
         file_bytes,
         {"content-type": "application/octet-stream", "upsert": "true"},
     )
-    url_response = client.storage.from_(bucket).get_public_url(path)
+    url_response = await client.storage.from_(bucket).get_public_url(path)
     return url_response
 
 
@@ -308,3 +318,62 @@ async def update_hunt_job(job_id: str, updates: Dict[str, Any]) -> None:
         .eq("id", job_id)
         .execute()
     )
+
+
+# ── Watched Accounts ──────────────────────────────────────────────────────────
+
+async def insert_watched_account(data: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Insert a new watched_account record.
+
+    Required keys: owner_id, platform, handle
+    Optional keys: label, source
+    Returns the inserted row (with generated id, created_at, etc.).
+    """
+    client = await get_async_client()
+    response = await client.table("watched_accounts").insert(data).execute()
+    return response.data[0]
+
+
+async def get_watched_accounts(
+    owner_id: str,
+    platform: Optional[str] = None,
+) -> List[Dict[str, Any]]:
+    """
+    Return all watched accounts for an owner, optionally filtered by platform.
+    Ordered by creation date, newest first.
+    """
+    client = await get_async_client()
+    query = (
+        client.table("watched_accounts")
+        .select("*")
+        .eq("owner_id", owner_id)
+        .order("created_at", desc=True)
+    )
+    if platform:
+        query = query.eq("platform", platform)
+    response = await query.execute()
+    return response.data or []
+
+
+async def delete_watched_account(account_id: str) -> None:
+    """Delete a watched_account row by UUID."""
+    client = await get_async_client()
+    await (
+        client.table("watched_accounts")
+        .delete()
+        .eq("id", account_id)
+        .execute()
+    )
+
+
+async def update_watched_account(account_id: str, updates: Dict[str, Any]) -> None:
+    """Apply *updates* dict to a watched_account row."""
+    client = await get_async_client()
+    await (
+        client.table("watched_accounts")
+        .update(updates)
+        .eq("id", account_id)
+        .execute()
+    )
+

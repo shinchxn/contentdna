@@ -98,7 +98,7 @@ async def crawl_tiktok(urls: list[str] = None):
                         platform="tiktok",
                         source_type="crawler",
                     )
-                    if result and result.get("matched"):
+                    if result and result.matched:
                         total_matched += 1
 
                 except Exception as e:
@@ -123,3 +123,13 @@ async def crawl_tiktok(urls: list[str] = None):
         "[TikTok] Crawl complete — %d media processed, %d matches",
         total_found, total_matched,
     )
+    return {"found": total_found, "matched": total_matched}
+
+
+async def check_tiktok_account(handle: str, owner_id: str, limit: int = 20) -> dict:
+    """
+    Fetch a specific TikTok profile's recent videos and run detection.
+    """
+    # gallery-dl natively supports downloading from a TikTok profile URL
+    profile_url = f"https://www.tiktok.com/@{handle.lstrip('@')}"
+    return await crawl_tiktok(urls=[profile_url])

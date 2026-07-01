@@ -185,6 +185,7 @@ async def detect_from_file(
                     "match_score":         score,
                     "severity":            severity,
                     "watermark_confirmed": watermark_confirmed,
+                    "thumbnail_url":       asset.get("storage_url") or None,
                 })
             except Exception as exc:
                 logger.error("Failed to insert alert for asset %s: %s", asset_id, exc)

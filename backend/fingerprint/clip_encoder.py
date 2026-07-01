@@ -2,7 +2,7 @@
 backend/fingerprint/clip_encoder.py
 
 No existing repo to copy from — written directly using HuggingFace transformers.
-Uses openai/clip-vit-large-patch14 for 512-dim semantic embeddings.
+Uses openai/clip-vit-base-patch32 for 512-dim semantic embeddings.
 """
 from transformers import CLIPProcessor, CLIPModel
 from PIL import Image

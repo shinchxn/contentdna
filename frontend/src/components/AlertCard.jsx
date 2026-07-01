@@ -93,10 +93,10 @@ export default function AlertCard({ alert }) {
           </p>
         )}
 
-        {/* Asset title */}
-        {alert.asset_title && (
+        {/* Asset title (joined from assets table) */}
+        {alert.assets?.title && (
           <p className="text-xs" style={{ color: "rgba(255,255,255,0.5)" }}>
-            Matches: <span className="text-white/70 font-medium">{alert.asset_title}</span>
+            Matches: <span className="text-white/70 font-medium">{alert.assets.title}</span>
           </p>
         )}
 
